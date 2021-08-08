@@ -1,0 +1,25 @@
+- name: Install MariaDB Package
+  yum:
+    update_cache: true
+    name: mariadb-server, python3-pymysql
+    state: present
+- name: Starting Maria Service
+  service:
+    name: mariadb
+    state: started
+- name: Create Wordpress Database
+  mysql_db:
+    login_unix_socket: "{{ db['socket'] }}"
+    name: "{{ db['db'] }}"
+    state: present
+    enabled: yes
+- name: Create Wordpress User
+  mysql_user:
+    check_implicit_admin: yes
+    login_unix_socket: "{{ db['socket'] }}"
+    name: "{{ db['user'] }}"
+    password: "{{ db['password'] }}"
+    host: localhost
+    priv: "{{ db['db] }}.*:ALL,GRANT"
+    state: present
+
