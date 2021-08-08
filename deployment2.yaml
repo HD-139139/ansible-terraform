@@ -1,0 +1,53 @@
+- name: Wordpress & MySQL Deployment
+  hosts: 192.168.200.101
+  vars_files:
+    - vars-test/deployment-test-vars.yaml
+  tasks:
+  - name: Install MySQL Package
+    apt:
+      update_cache: true
+      name: mysql-server, python3-pymysql
+      state: present
+  - name: Starting MySQL Service
+    service:
+      name: mysql
+      state: started
+      enabled: yes
+  - name: Create Wordpress Database
+    mysql_db:
+      login_unix_socket: "{{ db['socket'] }}"
+      name: "{{ db['db'] }}"
+      state: present
+  - name: Create Wordpress User
+    mysql_user:
+      check_implicit_admin: yes
+      login_unix_socket: "{{ db['socket'] }}"
+      name: "{{ db['user']  }}"
+      password: "{{ db['password'] }}"
+      host: localhost
+      priv: "{{ db['db'] }}.*:ALL,GRANT"
+      state: present
+
+  - name: Install Apache2 Package
+    apt:
+      name: apache2, php, php-mysql, php-gd, php-mbstring
+      state: present
+  - name: Starting Apache2 Service
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+  - name: Download Wordpress Source
+    get_url:
+      url: "{{ wp['source_url'] }}"
+      #checksum: "{{ wp['wp_sh1'] }}"
+      dest: "{{ wp['source_file'] }}"
+  - name: Unarchive Wordpress Source
+    unarchive:
+      src: "{{ wp['source_file'] }}"
+      remote_src: true
+      dest: /var/www/html
+  - name: Copy & Setting wp-config.php DB Configuration
+    template: 
+      src: jinja/wp-config.php.j2
+      dest: "{{ wp['config_file'] }}"
