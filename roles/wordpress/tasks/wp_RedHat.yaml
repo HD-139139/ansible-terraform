@@ -34,12 +34,12 @@
  
 - name: Copy & Setting Wordpress Database Configuration
   template:
-    src: jinja/wp-config.php.j2
+    src: ../templates/wp-config.php.j2
     dest: "{{ wp['config_file'] }}"
  
 - name: Change Httpd Service Ports
   template:
-    src: jinja/ports.conf.j2
+    src: ../templates/ports.conf.j2
     dest: /etc/httpd/conf/https.conf
   notify:
     - Restart httpd

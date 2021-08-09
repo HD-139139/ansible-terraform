@@ -22,4 +22,10 @@
     host: localhost
     priv: "{{ db['db] }}.*:ALL,GRANT"
     state: present
+- name: Connection Setting
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: bind-address
+    line: bind-address=0.0.0.0
+  notify: MariaDB Service Restart in RedHat
 
